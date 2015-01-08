@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Aura\Cli\CliFactory;
+use Melody\Diffcs\Diffcs;
+
+$context = (new CliFactory())->newContext($GLOBALS);
+$options = $context->getopt(array('repo::', 'pr:', 'token:'));
+
+$pullRequestId = $options->get('--pr');
+
+if (!$pullRequestId) {
+    die("The pull request id is required" . PHP_EOL);
+}
+
+if (!$options->get("--repo", 0)) {
+    die("The repository is required" . PHP_EOL);
+}
+
+list($owner, $repository) = explode("/", $options->get("--repo"));
+$accessToken = false;
+
+if ($options->get('--token', 0)) {
+    $accessToken = $options->get('--token');
+}
+
+$diffcs = new Diffcs($owner, $repository, $accessToken);
+
+try {
+    $outputs = $diffcs->execute($pullRequestId);
+} catch (\Exception $e) {
+    die("ERROR: " . $e->getMessage() . PHP_EOL);
+}
+
+
+if (count($outputs) > 0) {
+    foreach ($outputs as $output) {
+        echo $output;
+    }
+}
