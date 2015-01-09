@@ -4,6 +4,7 @@ namespace Melody\Diffcs;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as Adapter;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class Executor
 {
@@ -12,9 +13,17 @@ class Executor
     protected $accessToken;
     protected $client;
     protected $filesystem;
+    protected $progress;
 
-    public function __construct($owner, $repository, $githubToken = false, $githubUser = false, $githubPass = false)
-    {
+    public function __construct(
+        $output,
+        $owner,
+        $repository,
+        $githubToken = false,
+        $githubUser = false,
+        $githubPass = false
+    ) {
+        $this->output = $output;
         $this->owner = $owner;
         $this->githubToken = $githubToken;
         $this->githubUser = $githubUser;
@@ -71,6 +80,9 @@ class Executor
 
     public function downloadFiles($files, $commitId)
     {
+        $progress = new ProgressBar($this->output, count($files));
+        $progress->setProgressCharacter('|');
+        $progress->start();
         $downloadedFiles = [];
 
         foreach ($files as $file) {
@@ -89,7 +101,10 @@ class Executor
             $this->filesystem->put($file, $fileContent);
 
             $downloadedFiles[] = $file;
+            $progress->advance();
         }
+
+        $progress->finish();
 
         return $downloadedFiles;
     }

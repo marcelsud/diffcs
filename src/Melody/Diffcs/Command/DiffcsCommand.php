@@ -74,6 +74,7 @@ class DiffcsCommand extends Command
         }
 
         $executor = new Executor(
+            $output,
             $owner,
             $repository,
             $githubToken,
@@ -92,5 +93,7 @@ class DiffcsCommand extends Command
                 $output->writeln($result);
             }
         }
+
+        $output->writeln(PHP_EOL);
     }
 }
