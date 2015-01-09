@@ -1,11 +1,24 @@
 {
+    "name": "marcelsud/diffcs",
+    "description": "Run PHP Code Sniffer in pull requests",
+    "type": "library",
+    "license": "BSD Style",
+    "homepage": "https://github.com/marcelsud/diffcs",
     "require": {
         "knplabs/github-api": "~1.2",
         "league/flysystem": "0.5.*",
-        "symfony/console": "@stable",
         "aura/cli": "2.x"
     },
+    "authors": [
+        {
+            "name": "Marcelo Santos",
+            "email": "marcelsud@gmail.com"
+        }
+    ],
     "autoload": {
-        "psr-0": {"Melody\\": "src/"}
-    }
+        "psr-0": {
+            "Melody\\": "src/"
+        }
+    },
+    "bin": ["bin/diffcs"]
 }

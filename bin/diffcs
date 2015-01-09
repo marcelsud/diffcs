@@ -1,5 +1,10 @@
 #!/usr/bin/env php
 <?php
+
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    die("Please use composer to install this package" . PHP_EOL);
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Aura\Cli\CliFactory;
