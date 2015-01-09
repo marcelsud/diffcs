@@ -5,7 +5,7 @@ namespace Melody\Diffcs;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as Adapter;
 
-class Diffcs
+class Executor
 {
     protected $owner;
     protected $repository;
@@ -13,10 +13,12 @@ class Diffcs
     protected $client;
     protected $filesystem;
 
-    public function __construct($owner, $repository, $accessToken = false)
+    public function __construct($owner, $repository, $githubToken = false, $githubUser = false, $githubPass = false)
     {
         $this->owner = $owner;
-        $this->accessToken = $accessToken;
+        $this->githubToken = $githubToken;
+        $this->githubUser = $githubUser;
+        $this->githubPass = $githubPass;
         $this->repository = $repository;
         $this->client = new \Github\Client();
         $this->filesystem = new Filesystem(new Adapter(sys_get_temp_dir()));
@@ -24,24 +26,46 @@ class Diffcs
 
     public function execute($pullRequestId)
     {
-        if ($this->accessToken) {
-            $this->authenticate();
+        if ($this->githubToken) {
+            $this->authenticateWithToken();
         }
 
-        $pullRequest = $this->client->api('pull_request')->show($this->owner, $this->repository, $pullRequestId);
-        $files = $this->client->api('pull_request')->files($this->owner, $this->repository, $pullRequestId);
+        if ($this->githubUser) {
+            $this->authenticateWithPassword();
+        }
+
+        $pullRequest = $this->client->api('pull_request')->show(
+            $this->owner,
+            $this->repository,
+            $pullRequestId
+        );
+
+        $files = $this->client->api('pull_request')->files(
+            $this->owner,
+            $this->repository,
+            $pullRequestId
+        );
 
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
         return $this->runCodeSniffer($downloadedFiles);
     }
 
-    public function authenticate()
+    public function authenticateWithToken()
     {
         $this->client->authenticate(
             $this->accessToken,
             null,
             \Github\Client::AUTH_URL_TOKEN
+        );
+    }
+
+    public function authenticateWithPassword()
+    {
+        $this->client->authenticate(
+            $this->githubUser,
+            $this->githubPass,
+            \Github\Client::AUTH_HTTP_PASSWORD
         );
     }
 

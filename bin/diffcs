@@ -68,9 +68,8 @@ if (!defined('COMPOSER_AUTOLOAD_FILE')) {
 
 require COMPOSER_AUTOLOAD_FILE;
 
-use Melody\Diffcs\Command\DiffcsCommand;
-use Symfony\Component\Console\Application;
 
-$application = new Application();
-$application->add(new DiffcsCommand);
+use Melody\Diffcs\DiffcsApplication;
+
+$application = new DiffcsApplication();
 $application->run();
