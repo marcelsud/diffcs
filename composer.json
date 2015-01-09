@@ -7,7 +7,7 @@
     "require": {
         "knplabs/github-api": "~1.2",
         "league/flysystem": "0.5.*",
-        "symfony/console": "2.6.*"
+        "symfony/console": "v2.6.3"
     },
     "authors": [
         {
