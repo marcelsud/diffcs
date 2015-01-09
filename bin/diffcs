@@ -1,46 +1,76 @@
 #!/usr/bin/env php
 <?php
 
-if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    die("Please use composer to install this package" . PHP_EOL);
+/* Diffcs
+ *
+ * Copyright (c) 2014-2015, Marcelo Santos <marcelsud@gmail.com>.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ *   * Neither the name of Marcelo Santos nor the names of his
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+if (!ini_get('date.timezone')) {
+    ini_set('date.timezone', 'UTC');
 }
 
-require_once __DIR__ . '/../vendor/autoload.php';
+$files = array(
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php'
+);
 
-use Aura\Cli\CliFactory;
-use Melody\Diffcs\Diffcs;
-
-$context = (new CliFactory())->newContext($GLOBALS);
-$options = $context->getopt(array('repo::', 'pr:', 'token:'));
-
-$pullRequestId = $options->get('--pr');
-
-if (!$pullRequestId) {
-    die("The pull request id is required" . PHP_EOL);
-}
-
-if (!$options->get("--repo", 0)) {
-    die("The repository is required" . PHP_EOL);
-}
-
-list($owner, $repository) = explode("/", $options->get("--repo"));
-$accessToken = false;
-
-if ($options->get('--token', 0)) {
-    $accessToken = $options->get('--token');
-}
-
-$diffcs = new Diffcs($owner, $repository, $accessToken);
-
-try {
-    $outputs = $diffcs->execute($pullRequestId);
-} catch (\Exception $e) {
-    die("ERROR: " . $e->getMessage() . PHP_EOL);
-}
-
-
-if (count($outputs) > 0) {
-    foreach ($outputs as $output) {
-        echo $output;
+foreach ($files as $file) {
+    if (file_exists($file)) {
+        define('COMPOSER_AUTOLOAD_FILE', $file);
+        break;
     }
 }
+
+unset($file);
+unset($files);
+
+if (!defined('COMPOSER_AUTOLOAD_FILE')) {
+    fwrite(STDERR,
+        'You need to set up the project dependencies using the following commands:' . PHP_EOL .
+        'wget http://getcomposer.org/composer.phar' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL
+    );
+    die(1);
+}
+
+require COMPOSER_AUTOLOAD_FILE;
+
+use Melody\Diffcs\Command\DiffcsCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$application->add(new DiffcsCommand);
+$application->run();
