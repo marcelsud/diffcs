@@ -10,13 +10,33 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * Class DiffcsCommand
+ *
+ * @author Marcelo Santos <marcelsud@gmail.com>
+ */
 class DiffcsCommand extends Command
 {
+    /**
+     * @var string
+     */
     const PULL_REQUEST_ARGUMENT = "pull-request";
+    /**
+     * @var string
+     */
     const REPOSITORY_ARGUMENT = "repository";
+    /**
+     * @var string
+     */
     const GITHUB_TOKEN_OPTION = "github-token";
+    /**
+     * @var string
+     */
     const GITHUB_USER_OPTION = "github-user";
 
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this
@@ -47,6 +67,10 @@ class DiffcsCommand extends Command
         ;
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $pullRequestId = $input->getArgument(self::PULL_REQUEST_ARGUMENT);

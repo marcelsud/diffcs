@@ -6,15 +6,46 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as Adapter;
 use Symfony\Component\Console\Helper\ProgressBar;
 
+/**
+ * Class Executor
+ *
+ * @author Marcelo Santos <marcelsud@gmail.com>
+ */
 class Executor
 {
+    /**
+     * @var type 
+     */
     protected $owner;
+    /**
+     * @var type 
+     */
     protected $repository;
+    /**
+     * @var type 
+     */
     protected $accessToken;
+    /**
+     * @var \Github\Client 
+     */
     protected $client;
+    /**
+     * @var \League\Flysystem\Filesystem 
+     */
     protected $filesystem;
+    /**
+     * @var type 
+     */
     protected $progress;
 
+    /**
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param string $owner
+     * @param string $repository
+     * @param bool $githubToken Optional.
+     * @param bool $githubUser Optional.
+     * @param bool $githubPass Optional.
+     */
     public function __construct(
         $output,
         $owner,
@@ -33,6 +64,10 @@ class Executor
         $this->filesystem = new Filesystem(new Adapter(sys_get_temp_dir()));
     }
 
+    /**
+     * @param string $pullRequestId
+     * @return array
+     */
     public function execute($pullRequestId)
     {
         if ($this->githubToken) {
@@ -54,12 +89,15 @@ class Executor
             $this->repository,
             $pullRequestId
         );
-
+        
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
         return $this->runCodeSniffer($downloadedFiles);
     }
 
+    /**
+     * @return void
+     */
     public function authenticateWithToken()
     {
         $this->client->authenticate(
@@ -69,6 +107,9 @@ class Executor
         );
     }
 
+    /**
+     * @return void
+     */
     public function authenticateWithPassword()
     {
         $this->client->authenticate(
@@ -78,6 +119,11 @@ class Executor
         );
     }
 
+    /**
+     * @param array $files
+     * @param string $commitId
+     * @return array
+     */
     public function downloadFiles($files, $commitId)
     {
         $progress = new ProgressBar($this->output, count($files));
@@ -109,6 +155,10 @@ class Executor
         return $downloadedFiles;
     }
 
+    /**
+     * @param array $downloadedFiles
+     * @return array
+     */
     public function runCodeSniffer($downloadedFiles)
     {
         $outputs = [];
