@@ -6,6 +6,11 @@ use Melody\Diffcs\Command\DiffcsCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 
+/**
+ * Class DiffcsApplication
+ * 
+ * @author Marcelo Santos <marcelsud@gmail.com>
+ */
 class DiffcsApplication extends Application
 {
     /**
