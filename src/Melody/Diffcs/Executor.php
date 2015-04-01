@@ -14,27 +14,27 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class Executor
 {
     /**
-     * @var type 
+     * @var type
      */
     protected $owner;
     /**
-     * @var type 
+     * @var type
      */
     protected $repository;
     /**
-     * @var type 
+     * @var type
      */
     protected $accessToken;
     /**
-     * @var \Github\Client 
+     * @var \Github\Client
      */
     protected $client;
     /**
-     * @var \League\Flysystem\Filesystem 
+     * @var \League\Flysystem\Filesystem
      */
     protected $filesystem;
     /**
-     * @var type 
+     * @var type
      */
     protected $progress;
 
@@ -132,7 +132,7 @@ class Executor
         $downloadedFiles = [];
 
         foreach ($files as $file) {
-            if (!preg_match('/src\/.*\.php$/', $file['filename'])) {
+            if (!preg_match('/src\/.*\.php$/', $file['filename'] || $file['status'] === "removed")) {
                 continue;
             }
 
