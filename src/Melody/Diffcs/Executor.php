@@ -89,7 +89,7 @@ class Executor
             $this->repository,
             $pullRequestId
         );
-        
+
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
         return $this->runCodeSniffer($downloadedFiles);
@@ -126,16 +126,13 @@ class Executor
      */
     public function downloadFiles($files, $commitId)
     {
-        $progress = new ProgressBar($this->output, count($files));
-        $progress->setProgressCharacter('|');
-        $progress->start();
         $downloadedFiles = [];
-
+        
         foreach ($files as $file) {
-            if (!preg_match('/src\/.*\.php$/', $file['filename'] || $file['status'] === "removed")) {
+            if (!preg_match('/.*\.php$/', $file['filename']) || $file['status'] === "removed") {
                 continue;
             }
-
+            
             $fileContent = $this->client->api('repo')->contents()->download(
                 $this->owner,
                 $this->repository,
@@ -147,10 +144,7 @@ class Executor
             $this->filesystem->put($file, $fileContent);
 
             $downloadedFiles[] = $file;
-            $progress->advance();
         }
-
-        $progress->finish();
 
         return $downloadedFiles;
     }
@@ -161,10 +155,14 @@ class Executor
      */
     public function runCodeSniffer($downloadedFiles)
     {
+        $progress = new ProgressBar($this->output, count($downloadedFiles));
+        $progress->setProgressCharacter('|');
+        $progress->start();
+        
         $outputs = [];
-
+        
         foreach ($downloadedFiles as $file) {
-            if (!preg_match('/src\/.*\.php$/', $file)) {
+            if (!preg_match('/.*\.php$/', $file)) {
                 continue;
             }
 
@@ -179,7 +177,11 @@ class Executor
             if (!empty($output)) {
                 $outputs[] = $output;
             }
+            
+            $progress->advance();
         }
+        
+        $progress->finish();
 
         return $outputs;
     }

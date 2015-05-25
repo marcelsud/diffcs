@@ -106,10 +106,27 @@ class DiffcsCommand extends Command
             $githubPass
         );
 
+        $output->writeln('<fg=white;bg=cyan;options=bold>                               </fg=white;bg=cyan;options=bold>');
+        $output->writeln('<fg=white;bg=cyan;options=bold>  PHP DIFF CS (CODE STANDARD)  </fg=white;bg=cyan;options=bold>');
+        $output->writeln('<fg=white;bg=cyan;options=bold>                               </fg=white;bg=cyan;options=bold>');
+        
+        $output->writeln('');
+        $output->writeln(
+            '<fg=cyan>Project: <options=bold>'
+                .$input->getArgument(self::REPOSITORY_ARGUMENT)
+            .'</options=bold></fg=cyan>'
+        );
+        $output->writeln(
+            '<fg=cyan>Pull Request: <options=bold>#'.$pullRequestId.'</options=bold></fg=cyan>'
+        );
+        $output->writeln('');
+        
         try {
             $results = $executor->execute($pullRequestId);
         } catch (\Exception $e) {
-            die("ERROR: " . $e->getMessage() . PHP_EOL);
+            $output->writeln('<error>ERROR:</error> '.$e->getMessage());
+            
+            die();
         }
 
         if (count($results)) {
