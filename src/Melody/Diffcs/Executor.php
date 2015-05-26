@@ -99,6 +99,10 @@ class Executor
 
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
+        if (true !== $this->standardExists()){
+            throw new \ErrorException("There is a problem with the selected Standard. Please check using 'phpcs -i'.");
+        }
+        
         return $this->runCodeSniffer($downloadedFiles);
     }
 
@@ -192,5 +196,19 @@ class Executor
         $progress->finish();
 
         return $outputs;
+    }
+    
+    /**
+     * @return boolean
+     */
+    protected function standardExists()
+    {
+        $output = shell_exec("phpcs --standard=".$this->codeStandard);
+        
+        if (strpos($output, 'ERROR') <= 0) {
+            return false;
+        }
+        
+        return true;
     }
 }
