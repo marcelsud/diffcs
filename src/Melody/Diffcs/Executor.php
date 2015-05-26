@@ -99,7 +99,7 @@ class Executor
 
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
-        if (true !== $this->standardExists()){
+        if (true !== $this->standardExists()) {
             throw new \ErrorException("There is a problem with the selected Standard. Please check using 'phpcs -i'.");
         }
         
