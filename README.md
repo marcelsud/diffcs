@@ -60,4 +60,4 @@ diffcs symfony/symfony 13342 --github-user=seuusuario
 
 Once you run this command, provide your Github password. **The password is only required to authenticate your credentials into the private repository.**
 
-![Image](https://41.media.tumblr.com/df1e6041b827dc067d1c4c16ffb3df05/tumblr_nldnzr0w011sr73oio1_1280.png)
+![Image](output.png)

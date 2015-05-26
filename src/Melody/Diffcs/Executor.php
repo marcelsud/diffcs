@@ -37,11 +37,16 @@ class Executor
      * @var type
      */
     protected $progress;
+    /**
+     * @var string
+     */
+    protected $codeStandard;
 
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @param string $owner
      * @param string $repository
+     * @param string $codeStandard
      * @param bool $githubToken Optional.
      * @param bool $githubUser Optional.
      * @param bool $githubPass Optional.
@@ -50,6 +55,7 @@ class Executor
         $output,
         $owner,
         $repository,
+        $codeStandard,
         $githubToken = false,
         $githubUser = false,
         $githubPass = false
@@ -60,6 +66,7 @@ class Executor
         $this->githubUser = $githubUser;
         $this->githubPass = $githubPass;
         $this->repository = $repository;
+        $this->codeStandard = $codeStandard;
         $this->client = new \Github\Client();
         $this->filesystem = new Filesystem(new Adapter(sys_get_temp_dir()));
     }
@@ -91,7 +98,7 @@ class Executor
         );
 
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
-
+        
         return $this->runCodeSniffer($downloadedFiles);
     }
 
@@ -167,9 +174,10 @@ class Executor
             }
 
             $command = sprintf(
-                "phpcs %s/%s --standard=PSR2",
+                "phpcs %s/%s --standard=%s",
                 sys_get_temp_dir(),
-                $file
+                $file,
+                $this->codeStandard
             );
 
             $output = shell_exec($command);
