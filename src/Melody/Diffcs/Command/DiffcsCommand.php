@@ -28,6 +28,10 @@ class DiffcsCommand extends Command
     /**
      * @var string
      */
+    const CODE_STANDARD_OPTION = "code-standard";
+    /**
+     * @var string
+     */
     const GITHUB_TOKEN_OPTION = "github-token";
     /**
      * @var string
@@ -51,6 +55,13 @@ class DiffcsCommand extends Command
                 self::PULL_REQUEST_ARGUMENT,
                 InputArgument::REQUIRED,
                 'The pull request id'
+            )
+            ->addOption(
+                self::CODE_STANDARD_OPTION,
+                'cs',
+                InputOption::VALUE_OPTIONAL,
+                'The github token to access private repositories',
+                'PSR2'
             )
             ->addOption(
                 self::GITHUB_TOKEN_OPTION,
@@ -80,6 +91,8 @@ class DiffcsCommand extends Command
         $githubUser = $input->getOption(self::GITHUB_USER_OPTION);
         $githubPass = false;
 
+        $codeStandard = $input->getOption(self::CODE_STANDARD_OPTION);
+        
         if (!empty($githubUser)) {
             $helper = $this->getHelper('question');
 
@@ -101,6 +114,7 @@ class DiffcsCommand extends Command
             $output,
             $owner,
             $repository,
+            $codeStandard,
             $githubToken,
             $githubUser,
             $githubPass
@@ -118,6 +132,9 @@ class DiffcsCommand extends Command
         );
         $output->writeln(
             '<fg=cyan>Pull Request: <options=bold>#'.$pullRequestId.'</options=bold></fg=cyan>'
+        );
+        $output->writeln(
+            '<fg=cyan>Code Standard: <options=bold>'.$codeStandard.'</options=bold></fg=cyan>'
         );
         $output->writeln('');
         
