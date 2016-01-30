@@ -174,7 +174,7 @@ class Executor
             }
 
             $command = sprintf(
-                "phpcs %s/%s --standard=%s",
+                __DIR__ . "/../../../vendor/bin/phpcs %s/%s --standard=%s",
                 sys_get_temp_dir(),
                 $file,
                 $this->codeStandard
