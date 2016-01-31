@@ -1,6 +1,6 @@
 # DiffCS
 
-A tool to perform PSR-2 check into your pull requests on Github.
+A tool to perform code standard check into your pull requests on Github.
 
 ## How To Install
 
