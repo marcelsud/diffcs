@@ -37,11 +37,16 @@ class Executor
      * @var type
      */
     protected $progress;
+    /**
+     * @var string
+     */
+    protected $codeStandard;
 
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @param string $owner
      * @param string $repository
+     * @param string $codeStandard
      * @param bool $githubToken Optional.
      * @param bool $githubUser Optional.
      * @param bool $githubPass Optional.
@@ -50,6 +55,7 @@ class Executor
         $output,
         $owner,
         $repository,
+        $codeStandard,
         $githubToken = false,
         $githubUser = false,
         $githubPass = false
@@ -60,6 +66,7 @@ class Executor
         $this->githubUser = $githubUser;
         $this->githubPass = $githubPass;
         $this->repository = $repository;
+        $this->codeStandard = $codeStandard;
         $this->client = new \Github\Client();
         $this->filesystem = new Filesystem(new Adapter(sys_get_temp_dir()));
     }
@@ -89,9 +96,9 @@ class Executor
             $this->repository,
             $pullRequestId
         );
-        
-        $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
 
+        $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
+        
         return $this->runCodeSniffer($downloadedFiles);
     }
 
@@ -126,16 +133,13 @@ class Executor
      */
     public function downloadFiles($files, $commitId)
     {
-        $progress = new ProgressBar($this->output, count($files));
-        $progress->setProgressCharacter('|');
-        $progress->start();
         $downloadedFiles = [];
-
+        
         foreach ($files as $file) {
-            if (!preg_match('/src\/.*\.php$/', $file['filename'] || $file['status'] === "removed")) {
+            if (!preg_match('/.*\.php$/', $file['filename']) || $file['status'] === "removed") {
                 continue;
             }
-
+            
             $fileContent = $this->client->api('repo')->contents()->download(
                 $this->owner,
                 $this->repository,
@@ -147,10 +151,7 @@ class Executor
             $this->filesystem->put($file, $fileContent);
 
             $downloadedFiles[] = $file;
-            $progress->advance();
         }
-
-        $progress->finish();
 
         return $downloadedFiles;
     }
@@ -161,25 +162,35 @@ class Executor
      */
     public function runCodeSniffer($downloadedFiles)
     {
+        $progress = new ProgressBar($this->output, count($downloadedFiles));
+        $progress->setProgressCharacter('|');
+        $progress->start();
+        
         $outputs = [];
-
+        
         foreach ($downloadedFiles as $file) {
-            if (!preg_match('/src\/.*\.php$/', $file)) {
+            if (!preg_match('/.*\.php$/', $file)) {
                 continue;
             }
 
             $command = sprintf(
-                "phpcs %s/%s --standard=PSR2",
+                "vendor/bin/phpcs %s/%s --standard=%s",
                 sys_get_temp_dir(),
-                $file
+                $file,
+                $this->codeStandard
             );
 
             $output = shell_exec($command);
+            $output = str_replace('/tmp/tmp/', '', $output);
 
             if (!empty($output)) {
                 $outputs[] = $output;
             }
+            
+            $progress->advance();
         }
+        
+        $progress->finish();
 
         return $outputs;
     }
