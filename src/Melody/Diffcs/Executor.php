@@ -174,13 +174,14 @@ class Executor
             }
 
             $command = sprintf(
-                "phpcs %s/%s --standard=%s",
+                "bin/phpcs %s/%s --standard=%s",
                 sys_get_temp_dir(),
                 $file,
                 $this->codeStandard
             );
 
             $output = shell_exec($command);
+            $output = str_replace('/tmp/tmp/', '', $output);
 
             if (!empty($output)) {
                 $outputs[] = $output;
