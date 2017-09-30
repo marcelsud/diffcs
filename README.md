@@ -1,32 +1,31 @@
 # DiffCS
 
-A tool to perform PSR-2 check into your pull requests on Github.
+A tool to perform code sniffer checks of your pull requests on Github.
 
 ## How To Install
 
-Through **Composer**:
+You can grab a copy of marcelsud/diffcs in either of the following ways:
+
+### As a phar (recommended)
+
+You can simply download a pre-compiled and ready-to-use version as a Phar to any directory. Simply download the latest diffcs.phar file from our [releases page](https://github.com/marcelsud/diffcs/releases):
+
+```
+curl -LO https://github.com/marcelsud/diffcs/releases/download/v0.2.0/diffcs.phar
+php diffcs.phar --help
+```
+
+Optionally you can install it globally by adding it to your bin folder:
+
+```
+chmod +x diffcs.phar
+mv diffcs.phar /usr/local/bin/diffcs
+```
+
+### Via composer:
 
 ```
 composer global require "marcelsud/diffcs":"dev-master"
-```
-
-We suggest you to use `global` requirement, so you can use for all projects.
-
-Or cloning this project:
-
-```
-git clone git@github.com:marcelsud/diffcs.git
-```
-
-Once it's done, go to the root folder and execute:
-
-```
-composer install
-```
-
-Then, run the following command to use this tool through your `bin` folder:
-
-```
 sudo ln -nfs ~/.composer/vendor/bin/diffcs /usr/local/bin/diffcs
 ```
 
@@ -48,16 +47,27 @@ diffcs symfony/symfony 13342
 
 ### For private repositories:
 
+#### Authenticate with username and password
 Execute following command: `diffcs <source>/<project> <pull request id> --github-user=<github username>`, where:
 
 - `<github username>` is your Github username.
+- the password will be asked afterwards and is only required check private repositories.
 
 **Example**:
 
 ```
-diffcs symfony/symfony 13342 --github-user=seuusuario
+diffcs symfony/symfony 13342 --github-user=yourusername
 ```
 
-Once you run this command, provide your Github password. **The password is only required to authenticate your credentials into the private repository.**
+#### Authenticate with Github token
+Execute following command: `diffcs <source>/<project> <pull request id> --github-token=<github token>`, where:
 
-![Image](https://41.media.tumblr.com/df1e6041b827dc067d1c4c16ffb3df05/tumblr_nldnzr0w011sr73oio1_1280.png)
+- you can generate the `<github token>` in [your Github account settings](https://github.com/settings/tokens/new?scopes=repo&description=Diffcs%20token)).
+
+**Example**:
+
+```
+diffcs symfony/symfony 13342 --github-token=256199c24f9132f84e9bb06271ff65a3176a2f05
+```
+
+![Image](output.png)

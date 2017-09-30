@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class DiffcsApplication
- * 
+ *
  * @author Marcelo Santos <marcelsud@gmail.com>
  */
 class DiffcsApplication extends Application
