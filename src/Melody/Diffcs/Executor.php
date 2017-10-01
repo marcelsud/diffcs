@@ -178,7 +178,7 @@ class Executor
             }
 
             $command = sprintf(
-                "php $phpcsBinPath %s/%s --standard=%s",
+                "$phpcsBinPath %s/%s --standard=%s",
                 sys_get_temp_dir(),
                 $file,
                 $this->codeStandard
@@ -201,7 +201,7 @@ class Executor
 
     private static function getPhpCsBinPath()
     {
-        $phpcsBinPath = shell_exec('which phpcs');
+        $phpcsBinPath = trim(shell_exec('which phpcs'));
 
         if (!$phpcsBinPath) {
             $phpcsBinPath = sys_get_temp_dir() . '/.diffcs/phpcs';

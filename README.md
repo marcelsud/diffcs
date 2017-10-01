@@ -11,7 +11,7 @@ You can grab a copy of marcelsud/diffcs in either of the following ways:
 You can simply download a pre-compiled and ready-to-use version as a Phar to any directory. Simply download the latest diffcs.phar file from our [releases page](https://github.com/marcelsud/diffcs/releases):
 
 ```
-curl -LO https://github.com/marcelsud/diffcs/releases/download/v0.2.0/diffcs.phar
+curl -LO https://github.com/marcelsud/diffcs/releases/download/v0.2.1/diffcs.phar
 php diffcs.phar --help
 ```
 
