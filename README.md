@@ -29,6 +29,12 @@ composer global require "marcelsud/diffcs":"dev-master"
 sudo ln -nfs ~/.composer/vendor/bin/diffcs /usr/local/bin/diffcs
 ```
 
+### Via docker:
+
+```
+docker run --rm -it marcelsud/diffcs --help
+```
+
 ## How To Use
 
 ### For public repositories:
