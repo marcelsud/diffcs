@@ -13,6 +13,8 @@ use Symfony\Component\Console\Helper\ProgressBar;
  */
 class Executor
 {
+    const PHPCS_PHAR_URL = 'https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar';
+
     /**
      * @var type
      */
@@ -162,6 +164,8 @@ class Executor
      */
     public function runCodeSniffer($downloadedFiles)
     {
+        $phpcsBinPath = self::getPhpCsBinPath();
+
         $progress = new ProgressBar($this->output, count($downloadedFiles));
         $progress->setProgressCharacter('|');
         $progress->start();
@@ -174,7 +178,7 @@ class Executor
             }
 
             $command = sprintf(
-                "vendor/bin/phpcs %s/%s --standard=%s",
+                "php $phpcsBinPath %s/%s --standard=%s",
                 sys_get_temp_dir(),
                 $file,
                 $this->codeStandard
@@ -193,5 +197,22 @@ class Executor
         $progress->finish();
 
         return $outputs;
+    }
+
+    private static function getPhpCsBinPath()
+    {
+        $phpcsBinPath = shell_exec('which phpcs');
+
+        if (!$phpcsBinPath) {
+            $phpcsBinPath = sys_get_temp_dir() . '/.diffcs/phpcs';
+        }
+
+        if (!file_exists($phpcsBinPath)) {
+            shell_exec(sprintf("mkdir -p %s/.diffcs", sys_get_temp_dir()));
+            copy(self::PHPCS_PHAR_URL, $phpcsBinPath);
+            shell_exec('chmod +x ' . $phpcsBinPath);
+        }
+
+        return $phpcsBinPath;
     }
 }
