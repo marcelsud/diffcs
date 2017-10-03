@@ -101,7 +101,7 @@ class Executor
 
         $downloadedFiles = $this->downloadFiles($files, $pullRequest["head"]["sha"]);
         
-        return $this->runCodeSniffer($downloadedFiles);
+        $this->runCodeSniffer($downloadedFiles);
     }
 
     /**
@@ -149,10 +149,9 @@ class Executor
                 $commitId
             );
 
-            $file = sys_get_temp_dir() . "/" . $file['filename'];
-            $this->filesystem->put($file, $fileContent);
+            $this->filesystem->put(sys_get_temp_dir() . '/' . $file['filename'], $fileContent);
 
-            $downloadedFiles[] = $file;
+            $downloadedFiles[] = $file['filename'];
         }
 
         return $downloadedFiles;
@@ -160,43 +159,29 @@ class Executor
 
     /**
      * @param array $downloadedFiles
-     * @return array
+     *
+     * @return void
      */
     public function runCodeSniffer($downloadedFiles)
     {
         $phpcsBinPath = self::getPhpCsBinPath();
 
-        $progress = new ProgressBar($this->output, count($downloadedFiles));
-        $progress->setProgressCharacter('|');
-        $progress->start();
-        
-        $outputs = [];
-        
-        foreach ($downloadedFiles as $file) {
-            if (!preg_match('/.*\.php$/', $file)) {
-                continue;
-            }
+        $filesToCheck = array_filter($downloadedFiles, function($file) {
+            return preg_match('/.*\.php$/', $file);
+        });
 
-            $command = sprintf(
-                "$phpcsBinPath %s/%s --standard=%s",
-                sys_get_temp_dir(),
-                $file,
-                $this->codeStandard
-            );
+        $command = sprintf(
+            "cd %s && %s %s --standard=%s --basepath=.",
+            sys_get_temp_dir(),
+            $phpcsBinPath,
+            join(' ', $filesToCheck),
+            $this->codeStandard
+        );
 
-            $output = shell_exec($command);
-            $output = str_replace('/tmp/tmp/', '', $output);
+        exec($command, $output, $exitCode);
 
-            if (!empty($output)) {
-                $outputs[] = $output;
-            }
-            
-            $progress->advance();
-        }
-        
-        $progress->finish();
-
-        return $outputs;
+        printf(join(PHP_EOL, $output));
+        exit($exitCode);
     }
 
     private static function getPhpCsBinPath()
